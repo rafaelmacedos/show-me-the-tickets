@@ -1,3 +1,0 @@
-escpos
-html2image
-colorama

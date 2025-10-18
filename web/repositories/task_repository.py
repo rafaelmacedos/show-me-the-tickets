@@ -1,13 +1,13 @@
 from fastapi import Depends
 from sqlalchemy import select
 from web.models.task_model import TaskModel
-from web.schemas.task_schema import TaskCreateOrUpdateSchema
+from web.schemas.task_schema import TaskCreateSchema, TaskUpdateSchema
 from web.core.deps import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from web.core.config import settings
 
-async def create_task(task: TaskCreateOrUpdateSchema, db: AsyncSession = Depends(get_session)):
+async def create_task(task: TaskCreateSchema, db: AsyncSession = Depends(get_session)):
     new_task = TaskModel(
         title=task.title,
         description=task.description,
@@ -38,24 +38,24 @@ async def get_tasks(db: AsyncSession = Depends(get_session)):
 async def get_task_by_id(task_id: int, db: AsyncSession = Depends(get_session)):
     try:
         result = await db.execute(select(TaskModel).where(TaskModel.id == task_id))
-        return result.scalar_one()
+        return result.scalar_one_or_none()
     except Exception as e:
         raise e
 
 async def delete_task(task_id: int, db: AsyncSession = Depends(get_session)):
     try:
         result = await db.execute(select(TaskModel).where(TaskModel.id == task_id))
-        task = result.scalar_one()
+        task = result.scalar_one_or_none()
         await db.delete(task)
         await db.commit()
         return task
     except Exception as e:
         raise e
 
-async def update_task(task_id: int, updated_task: TaskCreateOrUpdateSchema, db: AsyncSession = Depends(get_session)):
+async def update_task(task_id: int, updated_task: TaskUpdateSchema, db: AsyncSession = Depends(get_session)):
     try:
         result = await db.execute(select(TaskModel).where(TaskModel.id == task_id))
-        task = result.scalar_one()
+        task = result.scalar_one_or_none()
         task.title = updated_task.title
         task.description = updated_task.description
         task.due_datetime = updated_task.due_datetime

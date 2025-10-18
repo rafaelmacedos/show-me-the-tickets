@@ -1,6 +1,6 @@
-from web.core.config import settings
-from sqlalchemy import Column, Integer, String, DateTime, Enum, TIMESTAMP
 from datetime import datetime
+from web.core.config import settings
+from sqlalchemy import Column, ForeignKey, Integer, String, Enum, TIMESTAMP
 from enum import Enum as PyEnum
 
 class TaskStatus(PyEnum):
@@ -26,13 +26,13 @@ class TaskCategory(PyEnum):
 
 class TaskModel(settings.DBBaseModel):
     __tablename__ = "tasks"
-    id: int = Column(Integer, default=None, primary_key=True, index=True, autoincrement=True)
-    title: str = Column(String)
+    id: int = Column(Integer, default=None, primary_key=True, index=True, autoincrement=True, nullable=False)
+    title: str = Column(String(200), nullable=False)
     description: str = Column(String(200))
     due_datetime: datetime = Column(TIMESTAMP(timezone=True))
-    created_at:  datetime = Column(TIMESTAMP(timezone=True))
-    updated_at: datetime = Column(TIMESTAMP(timezone=True))
-    status: TaskStatus =  Column(Enum(TaskStatus))
-    priority:  TaskPriority = Column(Enum(TaskPriority))
-    category: TaskCategory = Column(Enum(TaskCategory))
-    assigneeId: int = Column(Integer)
+    created_at:  datetime = Column(TIMESTAMP(timezone=True), nullable=False)
+    updated_at: datetime = Column(TIMESTAMP(timezone=True), nullable=False)
+    status: TaskStatus =  Column(Enum(TaskStatus), nullable=False)
+    priority:  TaskPriority = Column(Enum(TaskPriority), nullable=False)
+    category: TaskCategory = Column(Enum(TaskCategory), nullable=False)
+    assigneeId: int = Column(Integer, ForeignKey("users.id"), nullable=False)

@@ -1,10 +1,7 @@
-from datetime import datetime
-from http import HTTPStatus
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from web.core.config import settings
-from web.schemas.task_schema import TaskCreateOrUpdateSchema, TaskResponseSchema
-from web.models.task_model import TaskModel
+from web.schemas.task_schema import TaskCreateSchema, TaskUpdateSchema, TaskResponseSchema
 from web.core.deps import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from web.repositories.task_repository import create_task, delete_task, get_task_by_id, get_tasks, update_task
@@ -28,7 +25,7 @@ async def get_task_by_id_endpoint(task_id: int, db: AsyncSession = Depends(get_s
         raise HTTPException(status_code=404, detail=f"Error getting task with id {task_id}: {e}")
 
 @router.post("/", response_model=TaskResponseSchema, status_code=status.HTTP_201_CREATED)
-async def create_task_endpoint(new_task: TaskCreateOrUpdateSchema, db: AsyncSession = Depends(get_session)):
+async def create_task_endpoint(new_task: TaskCreateSchema, db: AsyncSession = Depends(get_session)):
     try:
         result = await create_task(new_task, db)
         return result
@@ -36,7 +33,7 @@ async def create_task_endpoint(new_task: TaskCreateOrUpdateSchema, db: AsyncSess
         raise HTTPException(status_code=400, detail=f"Error creating task: {e}")
 
 @router.put("/{task_id}", response_model=TaskResponseSchema, status_code=status.HTTP_200_OK)
-async def update_task_endpoint(task_id: int, updated_task: TaskCreateOrUpdateSchema, db: AsyncSession = Depends(get_session)):
+async def update_task_endpoint(task_id: int, updated_task: TaskUpdateSchema, db: AsyncSession = Depends(get_session)):
     try:
         result = await update_task(task_id, updated_task, db)
         return result
