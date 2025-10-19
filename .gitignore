@@ -210,6 +210,8 @@ src/ticket/generated/
 
 # Cypress generated files and folders
 node_modules/
+package-lock.json
+cypress/package-lock.json
 cypress/videos/
 cypress/screenshots/
 cypress/downloads/
@@ -218,3 +220,4 @@ cypress/logs/
 cypress/reports/
 cypress/.cache/
 cypress/.output/
+allure-results/
