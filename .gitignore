@@ -206,3 +206,15 @@ secrets.json
 .env.production
 
 src/ticket/generated/
+
+
+# Cypress generated files and folders
+node_modules/
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+cypress/results/
+cypress/logs/
+cypress/reports/
+cypress/.cache/
+cypress/.output/
