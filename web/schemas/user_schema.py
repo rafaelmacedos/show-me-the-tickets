@@ -6,8 +6,6 @@ class UserCreateSchema(SCBaseModel):
     email: EmailStr
     password: str
     confirm_password: str
-    created_at: datetime
-    updated_at: datetime
 
 class UserUpdateSchema(SCBaseModel):
     name: str
@@ -15,7 +13,6 @@ class UserUpdateSchema(SCBaseModel):
     password: str
     confirm_password: str
     is_active: bool
-    updated_at: datetime
 
 class UserResponseSchema(SCBaseModel):
     id: int

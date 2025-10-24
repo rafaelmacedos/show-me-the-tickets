@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION: int
+    ALLOWED_ORIGINS: List[str]
     
     DBBaseModel: ClassVar[DeclarativeMeta] = declarative_base()
 

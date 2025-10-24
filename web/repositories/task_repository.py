@@ -5,15 +5,15 @@ from web.schemas.task_schema import TaskCreateSchema, TaskUpdateSchema
 from web.core.deps import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
-from web.core.config import settings
 
 async def create_task(task: TaskCreateSchema, db: AsyncSession = Depends(get_session)):
+    datetime_now = datetime.now(timezone.utc)
     new_task = TaskModel(
         title=task.title,
         description=task.description,
         due_datetime=task.due_datetime,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
+        created_at=datetime_now,
+        updated_at=datetime_now,
         status=task.status,
         priority=task.priority,
         category=task.category,
@@ -53,6 +53,7 @@ async def delete_task(task_id: int, db: AsyncSession = Depends(get_session)):
         raise e
 
 async def update_task(task_id: int, updated_task: TaskUpdateSchema, db: AsyncSession = Depends(get_session)):
+    datetime_now = datetime.now(timezone.utc)
     try:
         result = await db.execute(select(TaskModel).where(TaskModel.id == task_id))
         task = result.scalar_one_or_none()
@@ -63,7 +64,7 @@ async def update_task(task_id: int, updated_task: TaskUpdateSchema, db: AsyncSes
         task.priority = updated_task.priority
         task.category = updated_task.category
         task.assigneeId = updated_task.assigneeId
-        task.updated_at = datetime.now(timezone.utc)
+        task.updated_at = datetime_now
         await db.commit()
         await db.refresh(task)
         return task

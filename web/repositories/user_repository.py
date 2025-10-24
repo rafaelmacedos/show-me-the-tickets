@@ -15,13 +15,14 @@ async def get_user_by_email(email: str, db: AsyncSession):
         raise e
 
 async def create_user(user: UserCreateSchema, db: AsyncSession):
+    datetime_now = datetime.now(timezone.utc)
     try:
         new_user = UserModel(
             name=user.name,
             email=user.email,
             password=hash_password(user.password),
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc)
+            created_at=datetime_now,
+            updated_at=datetime_now
         )
         db.add(new_user)
         await db.commit()
@@ -32,6 +33,7 @@ async def create_user(user: UserCreateSchema, db: AsyncSession):
         raise e
 
 async def update_user(user: UserUpdateSchema, db: AsyncSession):
+    datetime_now = datetime.now(timezone.utc)
     try:
         result = await db.execute(select(UserModel).where(UserModel.id == user.id))
         user = result.scalar_one_or_none()
@@ -39,7 +41,7 @@ async def update_user(user: UserUpdateSchema, db: AsyncSession):
         user.email = user.email
         user.password = hash_password(user.password)
         user.is_active = user.is_active
-        user.updated_at = datetime.now(timezone.utc)
+        user.updated_at = datetime_now
         await db.commit()
         await db.refresh(user)
         return user
