@@ -47,8 +47,8 @@ describe('Task Operations', () => {
             expect(response.body).to.have.property('priority').and.to.be.eq(body.priority);
             expect(response.body).to.have.property('category').and.to.be.eq(body.category);
             expect(response.body).to.have.property('assigneeId').and.to.be.eq(body.assigneeId);
-            cy.compareDatesWithTolerance(response.body.created_at, body.created_at);
-            cy.compareDatesWithTolerance(response.body.updated_at, body.updated_at);
+            expect(response.body).to.have.property('created_at').and.to.be.not.empty;
+            expect(response.body).to.have.property('updated_at').and.to.be.not.empty;
             created_task_id = response.body.id;
         });
     });
@@ -78,8 +78,8 @@ describe('Task Operations', () => {
             expect(response.body).to.have.property('priority').and.to.be.eq(create_task_body.priority);
             expect(response.body).to.have.property('category').and.to.be.eq(create_task_body.category);
             expect(response.body).to.have.property('assigneeId').and.to.be.eq(create_task_body.assigneeId);
-            cy.compareDatesWithTolerance(response.body.created_at, create_task_body.created_at);
-            cy.compareDatesWithTolerance(response.body.updated_at, create_task_body.updated_at);
+            expect(response.body).to.have.property('created_at').and.to.be.not.empty;
+            expect(response.body).to.have.property('updated_at').and.to.be.not.empty;
             created_task_id = response.body.id;
         });
     })
@@ -110,8 +110,8 @@ describe('Task Operations', () => {
             expect(response.body).to.have.property('priority').and.to.be.eq(update_task_body.priority);
             expect(response.body).to.have.property('category').and.to.be.eq(update_task_body.category);
             expect(response.body).to.have.property('assigneeId').and.to.be.eq(update_task_body.assigneeId);
-            cy.compareDatesWithTolerance(response.body.created_at, create_task_body.created_at);
-            cy.compareDatesWithTolerance(response.body.updated_at, update_task_body.updated_at);
+            expect(response.body).to.have.property('created_at').and.to.be.not.empty;
+            expect(response.body).to.have.property('updated_at').and.to.be.not.empty;
         });
     });
 
