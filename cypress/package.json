@@ -11,5 +11,6 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.7.0"
-  }
+  },
+  "version": "NaN.undefined.NaN"
 }
