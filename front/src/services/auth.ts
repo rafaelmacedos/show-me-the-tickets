@@ -14,25 +14,31 @@ class AuthService {
     formData.append('username', credentials.email);
     formData.append('password', credentials.password);
 
-    const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.LOGIN), {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.LOGIN), {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (!response.ok) {
-      const error: AuthError = await response.json();
-      
-      // Tratar especificamente erro de credenciais inválidas
-      if (response.status === 401) {
-        throw new Error('Credenciais inválidas. Verifique seu email e senha.');
+      if (!response.ok) {
+        const error: AuthError = await response.json();
+        
+        if (response.status === 401) {
+          throw new Error('Credenciais inválidas.');
+        }
+        
+        throw new Error(error.detail || 'Erro ao fazer login');
       }
-      
-      throw new Error(error.detail || 'Erro ao fazer login');
-    }
 
-    const data: AuthResponse = await response.json();
-    this.setToken(data.access_token);
-    return data;
+      const data: AuthResponse = await response.json();
+      this.setToken(data.access_token);
+      return data;
+    } catch (error) {
+      if (error instanceof TypeError) {
+        throw new Error('Erro de conexão. Verifique se o servidor está rodando.');
+      }
+      throw error;
+    }
   }
 
   async getCurrentUser(): Promise<User> {
