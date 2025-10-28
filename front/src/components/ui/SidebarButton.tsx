@@ -15,7 +15,7 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const baseClasses = 'w-full flex items-center px-6 py-4 rounded-2xl text-left transition-all duration-300 group relative overflow-hidden font-semibold';
+  const baseClasses = 'w-full flex items-center px-6 py-4 rounded-2xl text-left transition-all duration-300 group relative overflow-hidden font-semibold cursor-pointer';
   
   const variantClasses = {
     default: isActive

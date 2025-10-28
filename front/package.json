@@ -1,7 +1,7 @@
 {
   "name": "front",
   "private": true,
-  "version": "NaN.undefined.NaN",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

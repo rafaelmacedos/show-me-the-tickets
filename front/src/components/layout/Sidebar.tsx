@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick }) => {
   ];
 
   return (
-    <div className="w-80 bg-linear-to-b from-white to-gray-50 shadow-2xl border-r border-gray-200 flex flex-col h-max-screen">
+    <div className="w-80 bg-linear-to-b from-white to-gray-50 shadow-2xl border-r border-gray-200 flex flex-col h-screen fixed left-0 top-0 z-10">
       {/* Header com Logo */}
       <div className="p-8">
         <div className="w-42 h-42 mx-auto mb-4 flex items-center justify-center">
@@ -107,6 +107,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick }) => {
         >
           Sair
         </SidebarButton>
+        
+        {/* Version Info */}
+        <div className="mt-4 text-center">
+          <p className="text-xs text-gray-400">v1.0.0</p>
+        </div>
       </div>
     </div>
   );
