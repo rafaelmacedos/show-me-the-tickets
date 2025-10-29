@@ -1,18 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { TaskService } from '../../services/task';
-import { TaskStatus, TaskPriority, TaskCategory, TaskCreateRequest } from '../../types/task';
+import { TaskStatus, TaskPriority, TaskCategory, TaskUpdateRequest, Task } from '../../types/task';
 import { useAuth } from '../../contexts/AuthContext';
 import { TicketService, TaskFormData } from '../../services/ticket';
 import TicketPreview from '../ticket/TicketPreview';
+import Loading from '../ui/Loading';
 
-interface CreateTicketPageProps {
-  onTaskCreated?: () => Promise<void>;
+interface EditTaskPageProps {
+  taskId: string | null;
+  onBack: () => void;
+  onTaskUpdated?: () => Promise<void>;
 }
 
-const CreateTicketPage: React.FC<CreateTicketPageProps> = ({ onTaskCreated }) => {
+const EditTaskPage: React.FC<EditTaskPageProps> = ({ taskId, onBack, onTaskUpdated }) => {
   const { user } = useAuth();
+  const [task, setTask] = useState<Task | null>(null);
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     description: '',
@@ -20,48 +24,66 @@ const CreateTicketPage: React.FC<CreateTicketPageProps> = ({ onTaskCreated }) =>
     category: TaskCategory.WORK,
     due_datetime: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Carregar tarefa
+  useEffect(() => {
+    const loadTask = async () => {
+      if (!taskId) return;
+      
+      try {
+        setIsLoading(true);
+        const taskData = await TaskService.getTaskById(parseInt(taskId));
+        setTask(taskData);
+        setFormData({
+          title: taskData.title,
+          description: taskData.description,
+          priority: taskData.priority,
+          category: taskData.category,
+          due_datetime: taskData.due_datetime || ''
+        });
+      } catch (err) {
+        setError('Erro ao carregar tarefa');
+        console.error('Erro ao carregar tarefa:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTask();
+  }, [taskId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!task || !user?.id) return;
+
+    setIsSaving(true);
     setError(null);
     setSuccess(false);
 
-    // Verificar se o usuário está logado
-    if (!user?.id) {
-      setError('Usuário não encontrado. Faça login novamente.');
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const taskData: TaskCreateRequest = {
+      const taskData: TaskUpdateRequest = {
         ...formData,
         category: formData.category as TaskCategory,
-        status: TaskStatus.PENDING,
+        status: task.status, // Manter status atual
         due_datetime: formData.due_datetime || undefined,
         assigneeId: user.id,
       };
 
-      await TaskService.createTask(taskData);
+      await TaskService.updateTask(task.id, taskData);
       setSuccess(true);
       
-      // Redirecionar para listagem após criar tarefa
+      // Redirecionar para listagem após atualizar tarefa
       setTimeout(async () => {
-        await onTaskCreated?.();
+        await onTaskUpdated?.();
       }, 1500);
-
-      // Mostrar mensagem de sucesso por 3 segundos
-      setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao criar tarefa');
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar tarefa');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -73,17 +95,41 @@ const CreateTicketPage: React.FC<CreateTicketPageProps> = ({ onTaskCreated }) =>
   };
 
   // Gerar preview do ticket em tempo real
-  const ticketPreview = useMemo(() => {
+  const ticketPreview = React.useMemo(() => {
     if (!formData.title) return null;
     return TicketService.convertTaskToTicketData(formData);
   }, [formData]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loading size="lg" text="Carregando tarefa..." />
+      </div>
+    );
+  }
+
+  if (!task) {
+    return (
+      <div className="text-center py-16">
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          Tarefa não encontrada
+        </h3>
+        <p className="text-gray-600 mb-6">
+          A tarefa que você está tentando editar não existe.
+        </p>
+        <Button onClick={onBack}>
+          Voltar ao Dashboard
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto">
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="bg-black p-8 text-white">
-          <h1 className="text-3xl font-bold mb-2 text-white">Criar Nova Tarefa</h1>
-          <p className="text-white/90 text-lg">Preencha as informações abaixo para criar uma nova tarefa</p>
+          <h1 className="text-3xl font-bold mb-2 text-white">Editar Tarefa</h1>
+          <p className="text-white/90 text-lg">Atualize as informações da tarefa</p>
         </div>
         
         <div className="p-6">
@@ -103,7 +149,7 @@ const CreateTicketPage: React.FC<CreateTicketPageProps> = ({ onTaskCreated }) =>
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-green-800 font-medium text-sm">Tarefa criada com sucesso!</p>
+                  <p className="text-green-800 font-medium text-sm">Tarefa atualizada com sucesso!</p>
                 </div>
               </div>
             </div>
@@ -216,40 +262,34 @@ const CreateTicketPage: React.FC<CreateTicketPageProps> = ({ onTaskCreated }) =>
                     type="button"
                     variant="outline"
                     size="lg"
-                    onClick={() => setFormData({ 
-                      title: '', 
-                      description: '', 
-                      priority: TaskPriority.MEDIUM, 
-                      category: TaskCategory.WORK,
-                      due_datetime: ''
-                    })}
-                    disabled={isLoading}
+                    onClick={onBack}
+                    disabled={isSaving}
                     icon={
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                       </svg>
                     }
                   >
-                    Limpar
+                    Cancelar
                   </Button>
                   <Button
                     type="submit"
                     size="lg"
-                    disabled={isLoading}
+                    disabled={isSaving}
                     icon={
-                      isLoading ? (
+                      isSaving ? (
                         <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                       ) : (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       )
                     }
                   >
-                    {isLoading ? 'Criando...' : 'Criar Tarefa'}
+                    {isSaving ? 'Salvando...' : 'Salvar Alterações'}
                   </Button>
                 </div>
               </form>
@@ -286,4 +326,4 @@ const CreateTicketPage: React.FC<CreateTicketPageProps> = ({ onTaskCreated }) =>
   );
 };
 
-export default CreateTicketPage;
+export default EditTaskPage;

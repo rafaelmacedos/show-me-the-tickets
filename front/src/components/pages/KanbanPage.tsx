@@ -5,7 +5,12 @@ import KanbanBoard from '../kanban/KanbanBoard';
 import Loading from '../ui/Loading';
 import TicketViewModal from '../ticket/TicketViewModal';
 
-const KanbanPage: React.FC = () => {
+interface KanbanPageProps {
+  onEditTask?: (taskId: number) => void;
+  onCreateNew?: () => void;
+}
+
+const KanbanPage: React.FC<KanbanPageProps> = ({ onEditTask, onCreateNew }) => {
   const { tasks, isLoading, error, refetch } = useTasksContext();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -24,6 +29,12 @@ const KanbanPage: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedTask(null);
+  };
+
+  const handleEditTask = (task: Task) => {
+    if (onEditTask) {
+      onEditTask(task.id);
+    }
   };
 
   // Filtrar tarefas por mês
@@ -143,6 +154,20 @@ const KanbanPage: React.FC = () => {
                   })}
                 </select>
               </div>
+              {onCreateNew && (
+                <>
+                  <div className="w-px h-12 bg-white/20"></div>
+                  <button
+                    onClick={onCreateNew}
+                    className="px-6 py-3 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Nova Tarefa
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -178,6 +203,7 @@ const KanbanPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         task={selectedTask}
+        onEditTask={handleEditTask}
       />
     </div>
   );

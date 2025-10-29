@@ -7,9 +7,10 @@ interface TicketViewModalProps {
   isOpen: boolean;
   onClose: () => void;
   task: Task | null;
+  onEditTask?: (task: Task) => void;
 }
 
-const TicketViewModal: React.FC<TicketViewModalProps> = ({ isOpen, onClose, task }) => {
+const TicketViewModal: React.FC<TicketViewModalProps> = ({ isOpen, onClose, task, onEditTask }) => {
   if (!task) return null;
 
   const ticketData = TicketService.convertTaskToTicketData({
@@ -210,6 +211,17 @@ const TicketViewModal: React.FC<TicketViewModalProps> = ({ isOpen, onClose, task
         >
           Fechar
         </button>
+        {onEditTask && (
+          <button
+            onClick={() => onEditTask(task)}
+            className="px-6 py-2.5 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Editar Tarefa
+          </button>
+        )}
         <button
           onClick={handleDownloadTicket}
           className="px-6 py-2.5 bg-linear-to-r from-black to-gray-900 hover:from-gray-900 hover:to-black text-white rounded-xl transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"

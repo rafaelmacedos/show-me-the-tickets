@@ -1,13 +1,18 @@
 import React, { useState, useMemo } from 'react';
-import { useTasks } from '../../hooks/useTasks';
+import { useTasksContext } from '../../contexts/TasksContext';
 import { TaskStatus, TaskPriority, TaskStatusLabels, TaskPriorityLabels, TaskCategoryLabels, Task } from '../../types/task';
 import Button from '../ui/Button';
 import Loading from '../ui/Loading';
 import TicketViewModal from '../ticket/TicketViewModal';
 import Pagination from '../ui/Pagination';
 
-const ListTicketsPage: React.FC = () => {
-  const { tasks, isLoading, error, refetch } = useTasks();
+interface ListTicketsPageProps {
+  onEditTask?: (taskId: number) => void;
+  onCreateNew?: () => void;
+}
+
+const ListTicketsPage: React.FC<ListTicketsPageProps> = ({ onEditTask, onCreateNew }) => {
+  const { tasks, isLoading, error, refetch } = useTasksContext();
   const [filters, setFilters] = useState({
     priority: '',
     status: '',
@@ -76,6 +81,12 @@ const ListTicketsPage: React.FC = () => {
     setSelectedTask(null);
   };
 
+  const handleEditTask = (task: Task) => {
+    if (onEditTask) {
+      onEditTask(task.id);
+    }
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -84,8 +95,23 @@ const ListTicketsPage: React.FC = () => {
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="bg-black p-8 text-white">
-          <h1 className="text-3xl font-bold mb-2 text-white">Lista de Tarefas</h1>
-          <p className="text-white/90 text-lg">Gerencie todas as tarefas do sistema</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 text-white">Lista de Tarefas</h1>
+              <p className="text-white/90 text-lg">Gerencie todas as tarefas do sistema</p>
+            </div>
+            {onCreateNew && (
+              <button
+                onClick={onCreateNew}
+                className="px-6 py-3 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Nova Tarefa
+              </button>
+            )}
+          </div>
         </div>
         
         <div className="p-8">
@@ -237,6 +263,7 @@ const ListTicketsPage: React.FC = () => {
                       </svg>
                     </button>
                     <button 
+                      onClick={() => handleEditTask(task)}
                       className="p-3 text-gray-500 hover:text-green-600 hover:bg-linear-to-r hover:from-green-50 hover:to-green-100 rounded-xl transition-all duration-300 hover:scale-110 cursor-pointer"
                       title="Editar Tarefa"
                     >
