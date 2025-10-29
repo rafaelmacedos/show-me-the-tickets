@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from '../layout/Sidebar';
 import CreateTicketPage from '../pages/CreateTicketPage';
 import ListTicketsPage from '../pages/ListTicketsPage';
+import KanbanPage from '../pages/KanbanPage';
 import ConfigPage from '../pages/ConfigPage';
 
 const Dashboard: React.FC = () => {
@@ -13,6 +14,8 @@ const Dashboard: React.FC = () => {
         return <CreateTicketPage />;
       case 'list-tickets':
         return <ListTicketsPage />;
+      case 'kanban':
+        return <KanbanPage />;
       case 'config':
         return <ConfigPage />;
       default:

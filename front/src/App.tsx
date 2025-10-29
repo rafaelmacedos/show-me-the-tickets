@@ -1,5 +1,6 @@
 import React from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { TasksProvider } from './contexts/TasksContext';
 import LoginPage from './components/auth/LoginPage';
 import Dashboard from './components/dashboard/Dashboard';
 import Loading from './components/ui/Loading';
@@ -18,7 +19,11 @@ const AppContent: React.FC = () => {
     );
   }
 
-  return isAuthenticated ? <Dashboard /> : <LoginPage />;
+  return isAuthenticated ? (
+    <TasksProvider>
+      <Dashboard />
+    </TasksProvider>
+  ) : <LoginPage />;
 };
 
 function App() {

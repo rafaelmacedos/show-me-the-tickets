@@ -28,19 +28,21 @@ const Loading: React.FC<LoadingProps> = ({
   return (
     <div className={`flex flex-col items-center justify-center ${className}`}>
       <div className="relative">
-        {/* Loading spinner elegante */}
+        {/* Loading spinner elegante e simples */}
         <div className={`${sizeClasses[size]} relative`}>
-          {/* Círculo externo */}
+          {/* Círculo externo estático */}
           <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-          {/* Círculo animado */}
-          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-black border-r-black animate-spin"></div>
-          {/* Círculo interno com gradiente */}
-          <div className="absolute inset-2 rounded-full bg-linear-to-br from-gray-100 to-gray-200 animate-pulse"></div>
+          
+          {/* Círculo principal animado */}
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-gray-800 border-r-gray-600 animate-spin"></div>
+          
+          {/* Círculo interno sutil */}
+          <div className="absolute inset-2 rounded-full bg-gray-50"></div>
         </div>
       </div>
       
       {text && (
-        <p className={`mt-4 text-gray-600 font-medium ${textSizeClasses[size]} animate-pulse`}>
+        <p className={`mt-6 text-gray-700 font-medium ${textSizeClasses[size]}`}>
           {text}
         </p>
       )}
